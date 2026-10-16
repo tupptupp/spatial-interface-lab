@@ -4,11 +4,11 @@
 
 An original interactive study of folded chrome, optical glass and spatial perception. A single procedural sculpture is explored through scroll-driven camera compositions, followed by a small keyboard-accessible material lab.
 
-**Status: draft implementation, not a visually verified release candidate.** Local TypeScript, lint, unit/integration tests and production compilation pass. Browser verification is blocked in the authoring environment. The public [repository](https://github.com/tupptupp/spatial-interface-lab) and `feature/chrome-sculpture` branch are now published. Draft PR and remote CI verification are being prepared. No Vercel deployment exists.
+**Status: draft implementation, not a visually verified release candidate.** Local TypeScript, lint, unit/integration tests and production compilation pass. Local browser verification is blocked; remote Chromium verification has started. The first run exposed startup, narrow-layout and accessible-name defects, which are being corrected. The public [repository](https://github.com/tupptupp/spatial-interface-lab) and `feature/chrome-sculpture` branch are now published. [Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) is open. Remote CI verification is in progress; the first run passed 3 of 11 browser scenarios. No Vercel deployment exists.
 
 ![Offline study of the selected folded geometry](docs/studies/fold.png)
 
-_Offline CPU illustration of the original geometry. This is not a screenshot of the WebGL application. Actual WebGL screenshots remain a release requirement._
+_Offline CPU illustration of the original geometry. This is not a screenshot of the WebGL application. Actual WebGL screenshots are being collected through CI; approved portfolio captures remain a release requirement._
 
 ## The experience
 
@@ -64,7 +64,7 @@ The optional scene is split from the HTML/UI bundle. It is still a large depende
 
 ## Evidence and review
 
-30 local unit/integration/guard tests pass. Eleven Playwright scenarios are authored; none reached a browser assertion locally because Chromium is missing and the browser download was blocked. This is **not** a passing browser suite. Safari, Firefox, physical mobile devices, accessibility in a real browser, actual GPU resource cleanup and visual quality are unverified. No FPS or Lighthouse claim is made.
+30 local unit/integration/guard tests pass. Eleven Playwright scenarios are authored. The first remote run passed 3 and failed 8, exposing startup timing, a small-screen control position and accessible-name issues. Local browser launch remains blocked. This is **not** a passing browser suite. Safari, Firefox, physical mobile devices, accessibility in a real browser, actual GPU resource cleanup and visual quality are unverified. No FPS or Lighthouse claim is made.
 
 See [verification](docs/verification.md), [performance](docs/performance.md), [rendering](docs/rendering.md), [architecture](docs/architecture.md), [design decisions](docs/design-decisions.md), [development](docs/development.md) and [engineering review](docs/review.md).
 

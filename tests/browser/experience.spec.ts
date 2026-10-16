@@ -4,7 +4,11 @@ import type { Page } from '@playwright/test';
 
 async function ready(page: Page) {
   await page.goto('/');
-  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready');
+  // Cold SwiftShader startup measured >15s on the hosted runner. Still require a real
+  // initialized scene within the application's explicit 30s startup budget.
+  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready', {
+    timeout: 30000,
+  });
 }
 async function travel(page: Page, id: string) {
   await page.evaluate((id) => {

@@ -88,13 +88,13 @@ describe('application progressive enhancement', () => {
     render(<App />);
     vi.stubGlobal('scrollY', 1900);
     fireEvent.scroll(window);
-    expect(screen.getByRole('link', { name: 'Inner structure' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '03 Inner structure' })).toHaveAttribute(
       'aria-current',
       'step',
     );
     vi.stubGlobal('scrollY', 0);
     fireEvent.resize(window);
-    expect(screen.getByRole('link', { name: 'The reveal' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '01 The reveal' })).toHaveAttribute(
       'aria-current',
       'step',
     );

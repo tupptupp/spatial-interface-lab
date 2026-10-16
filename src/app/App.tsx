@@ -47,7 +47,7 @@ export default function App() {
   }, []);
   useEffect(() => {
     if (staticMode || ready) return;
-    const timeout = window.setTimeout(onFailure, 15000);
+    const timeout = window.setTimeout(onFailure, 30000);
     return () => window.clearTimeout(timeout);
   }, [onFailure, ready, staticMode]);
   const retry = () => {
@@ -209,7 +209,7 @@ export default function App() {
           <a
             key={label}
             href={`#${['reveal', 'reflection', 'structure', 'material-lab'][index]}`}
-            aria-label={label}
+            aria-label={`${String(index + 1).padStart(2, '0')} ${label}`}
             aria-current={chapter === index ? 'step' : undefined}
           >
             <span className="nav-number">0{index + 1}</span>

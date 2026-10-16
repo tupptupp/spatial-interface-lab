@@ -6,7 +6,7 @@ The connected GitHub tool could inspect repositories and write within existing o
 
 The owner created https://github.com/tupptupp/spatial-interface-lab . It was verified empty, then populated through the connected GitHub tools. Main contains the minimal foundation; feature/chrome-sculpture contains substantive work. Commits were recreated through the connector using identical blob contents, so remote IDs differ from the local bundle supplied before the repository existed. Use the published repository for further development; do not push the old bundle over the remote history.
 
-The prepared Draft PR text is in docs/pr-draft.md. Remote CI and actual browser evidence must be checked before treating any browser gate as passed.
+[Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) is open; the prepared description is also in docs/pr-draft.md. Remote CI and actual browser evidence must be checked before treating any browser gate as passed.
 
 ## Vercel Preview only
 

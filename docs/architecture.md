@@ -1,6 +1,6 @@
 # Architecture
 
-The semantic document owns navigation and descriptive content. The optional WebGL canvas is decorative and hidden from the accessibility tree. `App` lazy-imports the rendering module only when motion is allowed and still/failure mode is inactive. A React error boundary, a 15-second startup timeout and `webglcontextlost` switch to usable static content. Retry creates a fresh Canvas. No credentials or backend state exist.
+The semantic document owns navigation and descriptive content. The optional WebGL canvas is decorative and hidden from the accessibility tree. `App` lazy-imports the rendering module only when motion is allowed and still/failure mode is inactive. A React error boundary, a 30-second startup timeout and `webglcontextlost` switch to usable static content. Retry creates a fresh Canvas. No credentials or backend state exist.
 
 ## Data flow
 

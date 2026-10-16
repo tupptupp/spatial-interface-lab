@@ -12,13 +12,13 @@ The generator exposes `fold`, `crescent` and `aperture` variants. The three offl
 
 Chrome is Three.js `MeshStandardMaterial`: metalness 1, bounded roughness 0.06–0.48, a restrained neutral tint and environment intensity 1.2. The core is `MeshPhysicalMaterial` with transmission 0.92, IOR 1.48, finite thickness and pale absorption tint. No custom shader or ray tracing is claimed.
 
-A procedural cubemap uses four broad/strip light forms. These are reflection cards, with one direct key spotlight and low ambient fill. The reflection environment is baked once, not re-rendered every frame. Changing key-light angle moves the direct light, not the baked reflection cards. This is a designed distinction and a perceptual limitation: a future preset could rebake the environment on committed changes if measured benefits justify the cost.
+A procedural cubemap uses four broad/strip light forms and a very dark neutral surround to retain low-level reflected form. These are reflection cards, with one direct key spotlight and low ambient fill. The reflection environment is baked once, not re-rendered every frame. Changing key-light angle moves the direct light, not the baked reflection cards. This is a designed distinction and a perceptual limitation: a future preset could rebake the environment on committed changes if measured benefits justify the cost.
 
 ACES filmic tone mapping uses a bounded exposure choreography. The application uses Three.js/R3F default sRGB display output and current color-management defaults. The first 1.1 seconds fade exposure from 55% to the shot value, then scrolling alone controls exposure. No bloom, chromatic aberration or color LUT is used.
 
 ## Cost and limitations
 
-Physical transmission incurs extra rendering work. It is screen/environment-based, not path-traced glass; refraction, hidden surfaces, multiple layers and depth ordering may differ from physical optics. It requires real-device visual inspection. Chrome cannot reflect scene objects with true local parallax: the environment is a fixed reflection approximation, not a realtime scene cubemap.
+Physical transmission incurs extra rendering work. Its render-target scale is 0.5 in high quality and 0.35 in balanced quality, avoiding a full-resolution secondary scene pass. It is screen/environment-based, not path-traced glass; refraction, hidden surfaces, multiple layers and depth ordering may differ from physical optics. It requires real-device visual inspection. Chrome cannot reflect scene objects with true local parallax: the environment is a fixed reflection approximation, not a realtime scene cubemap.
 
 The plinth and floor use rough PBR materials. There is no shadow-map pass or contact-shadow effect. This is inexpensive but the perceived suspension and architectural grounding need visual review.
 

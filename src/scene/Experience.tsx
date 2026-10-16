@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
-import { ACESFilmicToneMapping, Group, MathUtils, Vector3 } from 'three';
+import { ACESFilmicToneMapping, BackSide, Group, MathUtils, Vector3 } from 'three';
 import { sampleShot, smooth } from '../animation/choreography';
 import type { LabValues } from '../interaction/lab';
 import { observeFrame, QUALITY } from '../performance/quality';
@@ -94,9 +94,10 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   const config = QUALITY[quality];
 
   useEffect(() => {
+    gl.transmissionResolutionScale = quality === 'high' ? 0.5 : 0.35;
     setDpr(Math.min(window.devicePixelRatio || 1, config.dpr));
     onQuality(quality);
-  }, [config.dpr, onQuality, quality, setDpr]);
+  }, [config.dpr, gl, onQuality, quality, setDpr]);
 
   useEffect(() => {
     const wake = () => {
@@ -127,17 +128,17 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   }, [gl, invalidate, onFailure]);
 
   useFrame(() => {
-    const shot = sampleShot(progress.current, size.width < 700);
+    const portrait = size.width / size.height < 1.05;
+    const shot = sampleShot(progress.current, portrait);
     camera.position.set(...shot.position);
     look.set(
-      shot.target[0] - (size.width < 700 ? 0 : 1.05),
-      shot.target[1] + (size.width < 700 ? 1.1 : 0),
+      shot.target[0] - (portrait ? 0 : 1.05),
+      shot.target[1] + (portrait ? 1.1 : 0),
       shot.target[2],
     );
     camera.lookAt(look);
     const now = performance.now();
-    if (introStart.current === null) introStart.current = now;
-    const reveal = smooth((now - introStart.current) / 1100);
+    const reveal = introStart.current === null ? 0 : smooth((now - introStart.current) / 1100);
     gl.toneMappingExposure = shot.exposure * (0.55 + reveal * 0.45);
     if (reveal < 1 && !document.hidden) invalidate();
     if (sculpture.current) {
@@ -182,7 +183,12 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
         progress: progress.current,
         camera: camera.position.toArray(),
       };
-      readyFrame.current = requestAnimationFrame(onReady);
+      readyFrame.current = requestAnimationFrame(() => {
+        introStart.current = performance.now();
+        if (window.__SPATIAL_LAB__) window.__SPATIAL_LAB__.readyMs = performance.now();
+        onReady();
+        invalidate();
+      });
     }
   });
 
@@ -191,6 +197,10 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       <color attach="background" args={['#101210']} />
       <fog attach="fog" args={['#101210', 12, 30]} />
       <Environment resolution={config.environment} frames={1}>
+        <mesh>
+          <sphereGeometry args={[30, 16, 8]} />
+          <meshBasicMaterial color="#18211b" side={BackSide} />
+        </mesh>
         <Lightformer
           form="rect"
           intensity={7}

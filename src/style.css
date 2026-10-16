@@ -615,3 +615,16 @@ footer a {
     height: 44px;
   }
 }
+/* Keep the illustrated study visible while the first actual frame is submitted. */
+.stage canvas {
+  opacity: 1;
+  transition: opacity 350ms ease;
+}
+.stage[data-state='loading'] canvas {
+  opacity: 0;
+}
+@media (max-width: 350px), (max-height: 780px) and (max-width: 700px) {
+  .lab-panel {
+    margin-top: 150px;
+  }
+}

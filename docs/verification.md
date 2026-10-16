@@ -24,10 +24,18 @@ The prepared suite covers rendering startup, scroll/reverse, keyboard range mani
 
 The owner created the public `tupptupp/spatial-interface-lab` repository. It was inspected as empty before writing. The minimal foundation has been published on main, followed by feature/chrome-sculpture and separate geometry/experience milestones. The connected tools recreated these commits from identical Git blob contents; remote commit IDs differ from the original local history. The Git bundle from the initial delivery remains a record of that earlier local history, not a replacement for the published remote.
 
-A Draft PR and remote CI review are being prepared. The workflow now collects actual browser screenshots and frame-interval diagnostics when the browser checks pass. These outputs remain unverified until a run completes and is inspected.
+[Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) is open. [Quality CI](https://github.com/tupptupp/spatial-interface-lab/actions/runs/38954053397) has started; results are pending. The workflow now collects actual browser screenshots and frame-interval diagnostics when the browser checks pass. These outputs remain unverified until a run completes and is inspected.
 
 No Vercel project or deployment has been created. No other repository or existing deployment has been changed.
 
 ## Release blockers
 
 Actual desktop/mobile visual inspection, browser test results, realistic GPU profiling, context-loss recovery and resource-disposal inspection remain required. Chromium compatibility is unverified; Firefox, Safari and physical mobile devices are also unverified. No automated accessibility scan has run in a browser. Do not call this a completed portfolio release or a reviewed production candidate.
+
+## First remote browser run — defects found, fixes in review
+
+[Run 38954053397](https://github.com/tupptupp/spatial-interface-lab/actions/runs/38954053397), Node 22.23.3 / Ubuntu 24.04.5 / Chromium with SwiftShader: typecheck, lint, format, 30 unit/integration tests and build passed. Browser results: **3 passed, 8 failed**. The material-control scenario, 390px responsive scenario and JavaScript-disabled fallback passed. Failures included cold startup exceeding the 15s assertion budget, first-slider placement below the 320px viewport and chapter accessible names omitting the visible numbers.
+
+Actual artifact screenshots of the desktop lab, 768px composition and static/reduced-motion presentation were opened and reviewed. The portrait tablet artwork clipped at the right edge. A subsequent patch uses aspect-aware portrait framing, compacts the inspector spacing on short/narrow screens, includes visible numbers in chapter link names, halves transmission render-target resolution, retains the poster until a real frame arrives, and begins the reveal clock after frame submission. The software-runner startup budget is explicitly 30s, still requiring a real ready scene; no fallback acceptance or assertions were removed. A second run is required.
+
+The first screenshots show actual WebGL but do not demonstrate release-level motion, GPU performance, resource reclamation or Safari compatibility. The core reads dark in these images and needs further material review.
