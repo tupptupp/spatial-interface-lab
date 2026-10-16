@@ -4,7 +4,7 @@
 
 An original interactive study of folded chrome, optical glass and spatial perception. A single procedural sculpture is explored through scroll-driven camera compositions, followed by a small keyboard-accessible material lab.
 
-**Status: Draft PR open; Chromium verification passed, Vercel Preview blocked by workspace authorization.** [Repository](https://github.com/tupptupp/spatial-interface-lab) · [Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) · [Reviewed green CI checkpoint](https://github.com/tupptupp/spatial-interface-lab/actions/runs/38956443595).
+**Status: Draft PR open; Chromium verification passed, Vercel Preview blocked by workspace authorization.** [Repository](https://github.com/tupptupp/spatial-interface-lab) · [Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) · [Reviewed green CI checkpoint](https://github.com/tupptupp/spatial-interface-lab/actions/runs/38958637142).
 
 ![Actual WebGL capture, desktop](docs/screenshots/desktop-reveal.png)
 
@@ -64,9 +64,9 @@ The optional scene is split from the HTML/UI bundle. It is still a large depende
 
 ## Evidence and review
 
-36 local unit/integration/guard tests pass. Eleven Chromium scenarios passed at the linked green checkpoint: startup, forward/reverse scroll, keyboard controls/reset, 320/390/768px layouts, reduced-motion behavior, renderer remount, real context-loss recovery, axe scans, keyboard skipping and noscript fallback. The latest telemetry refinement adds a unit test and stricter capture checks; its CI run must also complete before claiming those changes verified.
+36 unit/integration/guard tests and eleven Chromium scenarios pass at the linked runtime checkpoint: startup, forward/reverse scroll, keyboard controls/reset, 320/390/768px layouts, reduced-motion behavior, renderer remount, real context-loss recovery, axe scans, keyboard skipping and noscript fallback. The strict evidence step also passed, including non-empty completed-draw samples.
 
-Actual desktop/mobile captures were opened and reviewed. Hardware performance, physical touch devices, Safari, Firefox and actual GPU memory reclamation remain unverified. Automated axe passing is not full WCAG conformance. No FPS or Lighthouse claim is made.
+Actual desktop/mobile captures were opened and reviewed. Hardware performance, physical touch devices, Safari, Firefox and actual GPU memory reclamation remain unverified. Automated axe passing is not full WCAG conformance. The software renderer produced only four workload samples (median completion latency 1593.9ms, p95 3442.1ms), so performance is not accepted. These are submission/fence completion upper bounds, not FPS. No Lighthouse claim is made.
 
 See [verification](docs/verification.md), [performance](docs/performance.md), [rendering](docs/rendering.md), [architecture](docs/architecture.md), [design decisions](docs/design-decisions.md), [development](docs/development.md) and [engineering review](docs/review.md).
 
