@@ -55,3 +55,7 @@ The capture reported Chromium 156.0.8078.4, 1440×1000 render pixels at DPR 1/hi
 ## Vercel state
 
 A new, separate project named spatial-interface-lab was created. Git linking was rejected because the Vercel GitHub integration lacks access. Direct file upload was then rejected with HTTP 403 for workspace tupptupp1337-3910. No upload was accepted and no deployment was created. No existing project was modified. Workspace authorization must be resolved by the owner; the block was not bypassed.
+
+## Measurement follow-up
+
+Run 38957762929 passed all **36 unit/integration tests and 11 browser scenarios**, but the stricter evidence step correctly failed because the activity/interval filter still yielded zero samples. The next correction removes that heuristic: each completed draw records CPU update/submission time plus its non-blocking fence completion latency, with visibility-disrupted samples excluded. There are no idle draws, so no wall-clock idle interval is mixed into those measurements. The workload resets the sample buffer before starting. These are completion-latency upper bounds, not presentation FPS or GPU timer-query results.

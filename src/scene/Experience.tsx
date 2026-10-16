@@ -88,15 +88,14 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   const [quality, setQuality] = useState<Quality>('high');
   const qualityState = useRef<QualityState>({ quality: 'high', slowWindows: 0, samples: [] });
   const ready = useRef(false);
-  const previousCompletion = useRef(0);
+  const excludePendingTiming = useRef(false);
   const submitted = useRef<{
     progress: number;
     camera: number[];
     signature: string;
-    active: boolean;
+    cpuMs: number;
   } | null>(null);
   const lastSignature = useRef('');
-  const lastInput = useRef(0);
 
   const introStart = useRef<number | null>(null);
   const look = useMemo(() => new Vector3(), []);
@@ -111,14 +110,11 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   useEffect(() => {
     const wake = () => {
       if (!document.hidden) {
-        const now = performance.now();
-        if (now - lastInput.current > 250) previousCompletion.current = 0;
-        lastInput.current = now;
         invalidate();
       }
     };
     const visibility = () => {
-      previousCompletion.current = 0;
+      excludePendingTiming.current = true;
       if (!document.hidden) invalidate();
     };
     const lost = (event: Event) => {
@@ -158,15 +154,15 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
         evidence.quality = quality;
         evidence.progress = submitted.current.progress;
         evidence.camera = submitted.current.camera;
-        const interval = now - previousCompletion.current;
-        if (previousCompletion.current && submitted.current.active) {
-          if (evidence.frames.length < 2400) evidence.frames.push(interval);
-          const next = observeFrame(qualityState.current, interval);
+        const latency = completion.elapsedMs + submitted.current.cpuMs;
+        if (!excludePendingTiming.current) {
+          if (evidence.frames.length < 2400) evidence.frames.push(latency);
+          const next = observeFrame(qualityState.current, latency);
           qualityState.current = next;
           if (next.quality !== quality) setQuality(next.quality);
         }
       }
-      previousCompletion.current = now;
+      excludePendingTiming.current = false;
       if (!ready.current) {
         ready.current = true;
         introStart.current = now;
@@ -224,7 +220,7 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       progress: progress.current,
       camera: camera.position.toArray(),
       signature,
-      active: now - lastInput.current < 1000,
+      cpuMs: performance.now() - now,
     };
     if (!gate.submit(performance.now())) {
       onFailure();

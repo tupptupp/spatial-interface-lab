@@ -26,7 +26,7 @@ await page.waitForFunction(
     window.__SPATIAL_LAB__.progress < 0.01,
 );
 await page.screenshot({ path: 'docs/screenshots/mobile-reveal.png' });
-// Active requestAnimationFrame scroll workload. Frame intervals are end-to-end CPU/browser scheduling, not GPU queries.
+// Active requestAnimationFrame scroll workload. Samples measure CPU update/submission plus non-blocking GPU completion polling, not presentation FPS.
 await page.setViewportSize({ width: 1440, height: 1000 });
 await page.waitForFunction(
   () => Math.abs(window.__SPATIAL_LAB__.width - innerWidth * window.__SPATIAL_LAB__.dpr) < 2,
@@ -65,6 +65,7 @@ writeFileSync(
       browser: await browser.version(),
       renderingState,
       ...evidence,
+      timingMetric: 'CPU submission plus GPU-fence completion latency (polling upper bound)',
       sampleCount: samples.length,
       medianMs: percentile(0.5),
       p95Ms: percentile(0.95),

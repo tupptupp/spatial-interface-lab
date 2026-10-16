@@ -14,7 +14,7 @@ The scene uses a demand loop with one authoritative main render pass. `GpuFrameG
 
 The opening reveal starts after the first completed frame. The canvas stays hidden behind the illustration until that completion. Scroll/control/resize changes update the latest desired state; intermediate states may be coalesced while a frame is in flight, but camera transforms remain deterministic. Native chapter links jump without CSS smooth scrolling, so keyboard skipping is not delayed by the rendering layer.
 
-Diagnostics record completion-to-completion intervals during active input, including browser polling granularity. These are upper-bound throughput measurements, not raw GPU timestamp queries. Quality hysteresis operates on these completion samples. Tab visibility changes reset timing continuity. `World` owns the main render call through R3F frame priority 1; Environment preprocessing remains separate and is not included in the main-frame counters.
+Diagnostics record CPU update/submission time plus non-blocking fence completion latency for each completed draw, excluding visibility-disrupted samples. No wall-clock idle interval is included. These are upper-bound throughput measurements, not raw GPU timestamp queries. Quality hysteresis operates on these completion samples. Tab visibility changes reset timing continuity. `World` owns the main render call through R3F frame priority 1; Environment preprocessing remains separate and is not included in the main-frame counters.
 
 ## Limitations and deliberate omissions
 
