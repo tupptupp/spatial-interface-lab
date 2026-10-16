@@ -120,6 +120,7 @@ function render(width, height, concept = 'fold') {
   core.dispose();
   return sharp(pixels, { raw: { width, height, channels: 3 } });
 }
+
 await render(1440, 1000).webp({ quality: 90 }).toFile('public/poster.webp');
 await render(390, 844).webp({ quality: 90 }).toFile('public/poster-mobile.webp');
 for (const concept of ['fold', 'crescent', 'aperture'])

@@ -4,11 +4,11 @@
 
 An original interactive study of folded chrome, optical glass and spatial perception. A single procedural sculpture is explored through scroll-driven camera compositions, followed by a small keyboard-accessible material lab.
 
-**Status: draft implementation, not a visually verified release candidate.** Local TypeScript, lint, unit/integration tests and production compilation pass. Local browser verification is blocked; remote Chromium verification has started. The first run exposed startup, narrow-layout and accessible-name defects, which are being corrected. The public [repository](https://github.com/tupptupp/spatial-interface-lab) and `feature/chrome-sculpture` branch are now published. [Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) is open. Remote CI verification is in progress; the first run passed 3 of 11 browser scenarios. No Vercel deployment exists.
+**Status: Draft PR open; Chromium verification passed, Vercel Preview blocked by workspace authorization.** [Repository](https://github.com/tupptupp/spatial-interface-lab) · [Draft PR #1](https://github.com/tupptupp/spatial-interface-lab/pull/1) · [Reviewed green CI checkpoint](https://github.com/tupptupp/spatial-interface-lab/actions/runs/38956443595).
 
-![Offline study of the selected folded geometry](docs/studies/fold.png)
+![Actual WebGL capture, desktop](docs/screenshots/desktop-reveal.png)
 
-_Offline CPU illustration of the original geometry. This is not a screenshot of the WebGL application. Actual WebGL screenshots are being collected through CI; approved portfolio captures remain a release requirement._
+_Actual Chromium/SwiftShader capture of source commit `2929571bce07af133a35c71cc745c8cc24f1d422`, 1440 × 1000. [Mobile](docs/screenshots/mobile-reveal.png) · [Material lab](docs/screenshots/desktop-lab.png). Original geometry comparisons are separately labeled offline studies in `docs/studies`._
 
 ## The experience
 
@@ -16,7 +16,7 @@ _Offline CPU illustration of the original geometry. This is not a screenshot of 
 - Native scrolling moves through three authored viewpoints and a final inspection shot; reverse scrolling derives exactly the same transforms.
 - The material lab changes chrome roughness, sculpture rotation and the key-light angle. Native range inputs support keyboard and touch; reset restores all three values.
 - Reduced motion, rendering failures and optional still mode use a compact static illustration with complete HTML content.
-- The renderer sleeps after the introduction and 140 ms after scroll activity. It resumes for user input, resize or visibility changes.
+- The renderer allows one GPU frame in flight and sleeps when the latest pose and material state have completed. It resumes for user input, resize or visibility changes.
 
 ## Run locally
 
@@ -64,7 +64,9 @@ The optional scene is split from the HTML/UI bundle. It is still a large depende
 
 ## Evidence and review
 
-30 local unit/integration/guard tests pass. Eleven Playwright scenarios are authored. The first remote run passed 3 and failed 8, exposing startup timing, a small-screen control position and accessible-name issues. Local browser launch remains blocked. This is **not** a passing browser suite. Safari, Firefox, physical mobile devices, accessibility in a real browser, actual GPU resource cleanup and visual quality are unverified. No FPS or Lighthouse claim is made.
+36 local unit/integration/guard tests pass. Eleven Chromium scenarios passed at the linked green checkpoint: startup, forward/reverse scroll, keyboard controls/reset, 320/390/768px layouts, reduced-motion behavior, renderer remount, real context-loss recovery, axe scans, keyboard skipping and noscript fallback. The latest telemetry refinement adds a unit test and stricter capture checks; its CI run must also complete before claiming those changes verified.
+
+Actual desktop/mobile captures were opened and reviewed. Hardware performance, physical touch devices, Safari, Firefox and actual GPU memory reclamation remain unverified. Automated axe passing is not full WCAG conformance. No FPS or Lighthouse claim is made.
 
 See [verification](docs/verification.md), [performance](docs/performance.md), [rendering](docs/rendering.md), [architecture](docs/architecture.md), [design decisions](docs/design-decisions.md), [development](docs/development.md) and [engineering review](docs/review.md).
 
@@ -76,4 +78,4 @@ Geometry, illustrations and page styling were created for this project. Dependen
 
 ## Release boundary
 
-Development belongs on `feature/chrome-sculpture`. `main` contains only the minimal working foundation. Do not merge or promote to production without explicit owner approval. The feature build actively rejects `VERCEL_ENV=production`. Repository creation and a separate Vercel Preview connection remain external setup tasks; [handoff](docs/handoff.md) describes them.
+Development belongs on `feature/chrome-sculpture`. `main` contains only the minimal working foundation. Do not merge or promote to production without explicit owner approval. The feature build actively rejects `VERCEL_ENV=production`. The separate Vercel project exists, but GitHub linking and source upload were denied by integration/workspace authorization; [handoff](docs/handoff.md) describes them.

@@ -89,7 +89,12 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   const qualityState = useRef<QualityState>({ quality: 'high', slowWindows: 0, samples: [] });
   const ready = useRef(false);
   const previousCompletion = useRef(0);
-  const submitted = useRef<{ progress: number; camera: number[]; signature: string } | null>(null);
+  const submitted = useRef<{
+    progress: number;
+    camera: number[];
+    signature: string;
+    active: boolean;
+  } | null>(null);
   const lastSignature = useRef('');
   const lastInput = useRef(0);
 
@@ -106,7 +111,9 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   useEffect(() => {
     const wake = () => {
       if (!document.hidden) {
-        lastInput.current = performance.now();
+        const now = performance.now();
+        if (now - lastInput.current > 250) previousCompletion.current = 0;
+        lastInput.current = now;
         invalidate();
       }
     };
@@ -152,7 +159,7 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
         evidence.progress = submitted.current.progress;
         evidence.camera = submitted.current.camera;
         const interval = now - previousCompletion.current;
-        if (previousCompletion.current && now - lastInput.current < 1000 && interval <= 1000) {
+        if (previousCompletion.current && submitted.current.active) {
           if (evidence.frames.length < 2400) evidence.frames.push(interval);
           const next = observeFrame(qualityState.current, interval);
           qualityState.current = next;
@@ -217,6 +224,7 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       progress: progress.current,
       camera: camera.position.toArray(),
       signature,
+      active: now - lastInput.current < 1000,
     };
     if (!gate.submit(performance.now())) {
       onFailure();

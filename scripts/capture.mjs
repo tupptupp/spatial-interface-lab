@@ -13,20 +13,24 @@ await page.goto(baseURL);
 await page.waitForSelector('[data-state="ready"]', { timeout: 45000 });
 await page.waitForFunction(() => performance.now() - window.__SPATIAL_LAB__.readyMs >= 1200);
 await page.screenshot({ path: 'docs/screenshots/desktop-reveal.png' });
-await page.locator('canvas').screenshot({ path: 'docs/screenshots/desktop-canvas.png' });
 await page.evaluate(() =>
   document.getElementById('material-lab').scrollIntoView({ behavior: 'instant' }),
 );
+await page.waitForFunction(() => window.__SPATIAL_LAB__.progress > 0.99);
 await page.screenshot({ path: 'docs/screenshots/desktop-lab.png' });
 await page.setViewportSize({ width: 390, height: 844 });
 await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
 await page.waitForFunction(
-  () => Math.abs(window.__SPATIAL_LAB__.width - innerWidth * window.__SPATIAL_LAB__.dpr) < 2,
+  () =>
+    Math.abs(window.__SPATIAL_LAB__.width - innerWidth * window.__SPATIAL_LAB__.dpr) < 2 &&
+    window.__SPATIAL_LAB__.progress < 0.01,
 );
 await page.screenshot({ path: 'docs/screenshots/mobile-reveal.png' });
-await page.locator('canvas').screenshot({ path: 'docs/screenshots/mobile-canvas.png' });
 // Active requestAnimationFrame scroll workload. Frame intervals are end-to-end CPU/browser scheduling, not GPU queries.
 await page.setViewportSize({ width: 1440, height: 1000 });
+await page.waitForFunction(
+  () => Math.abs(window.__SPATIAL_LAB__.width - innerWidth * window.__SPATIAL_LAB__.dpr) < 2,
+);
 await page.evaluate(async () => {
   window.__SPATIAL_LAB__.frames = [];
   const maximum = document.documentElement.scrollHeight - innerHeight;
@@ -44,6 +48,7 @@ await page.evaluate(async () => {
     requestAnimationFrame(tick);
   });
 });
+const renderingState = await page.getByTestId('stage').getAttribute('data-state');
 const evidence = await page.evaluate(() => ({
   render: window.__SPATIAL_LAB__,
   userAgent: navigator.userAgent,
@@ -58,6 +63,7 @@ writeFileSync(
   JSON.stringify(
     {
       browser: await browser.version(),
+      renderingState,
       ...evidence,
       sampleCount: samples.length,
       medianMs: percentile(0.5),
@@ -70,3 +76,6 @@ writeFileSync(
 );
 await browser.close();
 if (errors.length) throw new Error(errors.join('\n'));
+if (renderingState !== 'ready')
+  throw new Error('The rendering layer did not remain active during the workload');
+if (!samples.length) throw new Error('The active workload produced no completed-frame samples');

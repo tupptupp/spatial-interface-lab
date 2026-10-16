@@ -8,7 +8,7 @@ These are potentially useful portfolio discussion points for a design engineer o
 
 ## What a senior reviewer should challenge
 
-The rendering layer has not run in a browser in this environment. The central artistic promise, glass quality, moving reflections, intentional blade crossings, mobile framing and camera composition remain unverified. The environment is modest in resolution; very low roughness may reveal filtering limits. The baked cards do not rotate with the key spotlight. The scene lacks contact shadows and true local reflections.
+Remote Chromium/SwiftShader now renders the scene, and eleven browser scenarios passed at the recorded checkpoint. Actual initial/lab/mobile screenshots were reviewed. The glass core reads too dark, and moving reflections, every exploration viewpoint and physical-device framing still need artistic review. The environment is modest in resolution; very low roughness may reveal filtering limits. The baked cards do not rotate with the key spotlight. The scene lacks contact shadows and true local reflections.
 
 Adaptive quality measures browser frame scheduling rather than GPU time. It is implemented and unit tested but has not been calibrated on actual devices. The scene chunk is substantial. Canvas cleanup relies partly on R3F lifecycle ownership; mock-based UI cleanup tests cannot establish GPU-resource reclamation. No accessibility-conformance or cross-browser claim is warranted.
 
@@ -18,7 +18,7 @@ Adaptive quality measures browser frame scheduling rather than GPU time. It is i
 2. Run the eleven browser scenarios and resolve genuine failures. Inspect keyboard focus and touch usage manually.
 3. Profile a desktop GPU and a physical midrange phone, recording device/browser/viewport/DPR/sample counts. Validate the quality thresholds and confirm idle rendering stops.
 4. Verify GPU resources after repeated still/retry and context-loss transitions. Check real Safari separately.
-5. After a new GitHub repository and a separate Vercel project are connected, verify only the feature preview. Keep the PR Draft and production blocked.
+5. Resolve Vercel workspace/GitHub-integration authorization and verify only the feature preview. Keep the PR Draft and production blocked.
 
 ## Readiness assessment
 

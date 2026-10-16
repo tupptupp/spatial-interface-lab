@@ -20,7 +20,7 @@ npm run test:e2e
 
 Playwright uses Chromium/SwiftShader with one worker to limit software-rendering contention. Treat its results as emulation, not hardware performance or Safari compatibility. Real-device checks remain required. Do not update tests to accept missing rendering or to hide a failure.
 
-`npm run assets:generate` regenerates two fallback WebPs and three CPU concept PNGs from the original geometry. The geometry resolution in the offline tool differs from the runtime; illumination is approximate. These are committed assets, so end users need no authoring software.
+`npm run assets:generate` regenerates two clean CPU-study fallback WebPs and three geometry concept PNGs. These are illustrations, not WebGL screenshots; real application captures are kept separately in docs/screenshots. Sharp is an authoring-only dependency.
 
 `npm run evidence:capture` requires a reachable preview (default localhost:4173). The script captures actual screenshots and frame-interval diagnostics. Run it only against this project or an authorized preview URL. It accepts no credentials; never put secrets in `PREVIEW_URL`.
 

@@ -24,11 +24,11 @@ The plinth and floor use rough PBR materials. There is no shadow-map pass or con
 
 High quality uses 256px cubemap faces; balanced uses 128px. Procedural area cards avoid raster texture compression and asset loading, but lower-resolution filtering may soften highlights at low roughness. Inspect both before accepting the visual gate.
 
-## Static illustration
+## Static fallback and concept studies
 
-`scripts/create-posters.mjs` is a separate CPU rasterizer for the same original geometry: projected triangles, z-buffer visibility, interpolated normals and an analytic lighting approximation. It creates the committed WebP fallback assets and PNG concept studies reproducibly with Sharp. It is not the Three.js render pipeline and does not model transmission; the core is represented as tinted geometry. The illustrations were inspected as static assets only. They must never be labeled application screenshots.
+The standalone fallback WebPs and docs/studies images come from the original-geometry CPU rasterizer in scripts/create-posters.mjs. They have interpolated normals, z-buffer visibility and analytic lighting, but are not actual WebGL screenshots and do not model transmission. Reproduce with npm run assets:generate. Sharp is an authoring-only dependency.
 
-Regenerate with `npm run assets:generate` (Node 22.18+). Sharp is an authoring-only development dependency and is excluded from browser output.
+Actual UI screenshots from the reviewed CI checkpoint are kept in docs/screenshots and labeled with their source commit. A DOM element screenshot of the canvas rectangle also includes composited HTML overlays; those captures were rejected as fallback assets after visual inspection. The fallback remains a clean illustration with the live HTML rendered once on top.
 
 ## References consulted
 

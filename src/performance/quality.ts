@@ -19,11 +19,13 @@ export function observeFrame(state: QualityState, milliseconds: number): Quality
   if (
     state.quality === 'balanced' ||
     milliseconds <= 0 ||
-    milliseconds > 1000 ||
+    milliseconds > 30000 ||
     !Number.isFinite(milliseconds)
   )
     return state;
   const samples = [...state.samples, milliseconds];
+  if (samples.length >= 3 && samples.slice(-3).every((sample) => sample > 250))
+    return { quality: 'balanced', slowWindows: state.slowWindows, samples: [] };
   if (samples.length < 90) return { ...state, samples };
   const slowWindows = percentile(samples, 0.5) > 30 ? state.slowWindows + 1 : 0;
   return { quality: slowWindows >= 3 ? 'balanced' : 'high', slowWindows, samples: [] };

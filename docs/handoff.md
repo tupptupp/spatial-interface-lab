@@ -22,3 +22,7 @@ Official references consulted 2026-10-16:
 
 - https://vercel.com/docs/project-configuration/git-configuration
 - https://vercel.com/docs/cli/deploy
+
+## Deployment attempt result
+
+The Vercel connection is installed and its tools are available. Creating a project with Git linking failed because the GitHub integration is not authorized. A new empty project was successfully created without Git linking. Uploading the first source file with its explicit project account/workspace ID was denied with HTTP 403 for tupptupp1337-3910. No file upload or deployment succeeded. Do not retry with another scope to evade the restriction; the owner must resolve the workspace permissions and GitHub integration. Existing Vercel projects were untouched.
