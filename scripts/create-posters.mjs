@@ -11,7 +11,7 @@ function render(width, height, concept = 'fold') {
   const mobile = width < 700;
   const camera = new PerspectiveCamera(37, width / height, 0.1, 100);
   camera.position.set(0, 0.5, mobile ? 12.07 : 8.5);
-  camera.lookAt(mobile ? 0 : -1.05, 0, 0);
+  camera.lookAt(mobile ? 0 : -1.05, mobile ? 1.1 : 0, 0);
   camera.updateMatrixWorld();
   const pixels = Buffer.alloc(width * height * 3);
   const depth = new Float32Array(width * height).fill(Infinity);

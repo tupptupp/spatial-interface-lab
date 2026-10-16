@@ -129,7 +129,11 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
   useFrame(() => {
     const shot = sampleShot(progress.current, size.width < 700);
     camera.position.set(...shot.position);
-    look.set(shot.target[0] - (size.width < 700 ? 0 : 1.05), shot.target[1], shot.target[2]);
+    look.set(
+      shot.target[0] - (size.width < 700 ? 0 : 1.05),
+      shot.target[1] + (size.width < 700 ? 1.1 : 0),
+      shot.target[2],
+    );
     camera.lookAt(look);
     const now = performance.now();
     if (introStart.current === null) introStart.current = now;

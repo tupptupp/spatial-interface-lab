@@ -597,3 +597,21 @@ footer a {
     transition: none !important;
   }
 }
+/* Long editorial lines retain their shape at the narrowest supported viewport. */
+#structure-title {
+  font-size: clamp(56px, 5.4vw, 90px);
+}
+@media (max-width: 700px) {
+  h1 {
+    font-size: clamp(36px, 10.6vw, 72px);
+  }
+  #structure-title {
+    font-size: 11vw;
+  }
+  .lab-panel {
+    margin-top: 290px;
+  }
+  input[type='range'] {
+    height: 44px;
+  }
+}
