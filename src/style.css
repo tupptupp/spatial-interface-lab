@@ -8,7 +8,7 @@
   --acid: #c7d6a3;
   --muted: #b0b5a8;
   --journey: 0;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 100px;
 }
 * {

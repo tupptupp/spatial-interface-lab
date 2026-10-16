@@ -10,7 +10,11 @@ Camera position and look target use smoothstep interpolation. Model rotation use
 
 Lab state is a three-number object, validated in `updateLab`. Lab values remain applied when returning to earlier chapters. Geometry is built once per quality resolution, shared by the three blade meshes and explicitly disposed when replaced/unmounted. React Three Fiber owns the remaining declarative GPU resources.
 
-The scene uses a demand loop. The opening exposure reveal self-invalidates for a bounded 1.1 seconds. Scroll wakes a short active sampling window; it ends 140 ms after the last input. Render intervals are only sampled when the prior frame explicitly requested a continuation, avoiding classification of idle time or input-event cadence as render speed. Visibility changes clear continuation state. Input controls and resize invalidate through R3F property updates.
+The scene uses a demand loop with one authoritative main render pass. `GpuFrameGate` inserts a WebGL2 fence after each submitted frame and polls it with zero blocking timeout. At most one main frame is in flight, preventing the CPU from queueing many expensive frames on a slow/software GPU. Polling ends after completion; unchanged pose/material state produces no further draws. A stalled or failed fence activates fallback, and fences are disposed on cleanup.
+
+The opening reveal starts after the first completed frame. The canvas stays hidden behind the illustration until that completion. Scroll/control/resize changes update the latest desired state; intermediate states may be coalesced while a frame is in flight, but camera transforms remain deterministic. Native chapter links jump without CSS smooth scrolling, so keyboard skipping is not delayed by the rendering layer.
+
+Diagnostics record completion-to-completion intervals during active input, including browser polling granularity. These are upper-bound throughput measurements, not raw GPU timestamp queries. Quality hysteresis operates on these completion samples. Tab visibility changes reset timing continuity. `World` owns the main render call through R3F frame priority 1; Environment preprocessing remains separate and is not included in the main-frame counters.
 
 ## Limitations and deliberate omissions
 

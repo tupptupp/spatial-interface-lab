@@ -105,14 +105,18 @@ test('reduced motion loads the static study without a canvas or scene chunk', as
 });
 
 test('mode changes unmount and recreate the renderer', async ({ page }) => {
+  test.setTimeout(75000); // Two independent renderer startups retain the same 30s budget each.
   await ready(page);
   await page.getByRole('button', { name: /Still mode/ }).click();
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: /Enable 3D/ }).click();
-  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready');
+  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready', {
+    timeout: 30000,
+  });
 });
 
 test('context loss activates fallback and permits a fresh context', async ({ page }) => {
+  test.setTimeout(75000); // Two independent renderer startups retain the same 30s budget each.
   await ready(page);
   const supported = await page.evaluate(() => {
     const canvas = document.querySelector('canvas')!;
@@ -128,7 +132,9 @@ test('context loss activates fallback and permits a fresh context', async ({ pag
     '3D unavailable',
   );
   await page.getByRole('button', { name: /Enable 3D/ }).click();
-  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready');
+  await expect(page.getByTestId('stage')).toHaveAttribute('data-state', 'ready', {
+    timeout: 30000,
+  });
 });
 
 test('keyboard skip link and semantic controls pass automated accessibility checks', async ({

@@ -7,6 +7,7 @@ import type { LabValues } from '../interaction/lab';
 import { observeFrame, QUALITY } from '../performance/quality';
 import type { Quality, QualityState } from '../performance/quality';
 import { createBlade } from './sculptureGeometry';
+import { GpuFrameGate } from '../performance/GpuFrameGate';
 
 export type RenderEvidence = {
   quality: Quality;
@@ -80,15 +81,18 @@ function Sculpture({
 }
 
 function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
-  const { gl, camera, size, invalidate, setDpr } = useThree();
+  const { gl, scene, camera, size, invalidate, setDpr } = useThree();
+  const gate = useMemo(() => new GpuFrameGate(gl.getContext() as WebGL2RenderingContext), [gl]);
+  useEffect(() => () => gate.dispose(), [gate]);
   const sculpture = useRef<Group>(null);
   const [quality, setQuality] = useState<Quality>('high');
   const qualityState = useRef<QualityState>({ quality: 'high', slowWindows: 0, samples: [] });
   const ready = useRef(false);
-  const previousFrame = useRef(0);
+  const previousCompletion = useRef(0);
+  const submitted = useRef<{ progress: number; camera: number[]; signature: string } | null>(null);
+  const lastSignature = useRef('');
   const lastInput = useRef(0);
-  const continuing = useRef(false);
-  const readyFrame = useRef(0);
+
   const introStart = useRef<number | null>(null);
   const look = useMemo(() => new Vector3(), []);
   const config = QUALITY[quality];
@@ -107,8 +111,7 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       }
     };
     const visibility = () => {
-      continuing.current = false;
-      previousFrame.current = 0;
+      previousCompletion.current = 0;
       if (!document.hidden) invalidate();
     };
     const lost = (event: Event) => {
@@ -123,13 +126,79 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       window.removeEventListener('scroll', wake);
       document.removeEventListener('visibilitychange', visibility);
       canvas.removeEventListener('webglcontextlost', lost);
-      cancelAnimationFrame(readyFrame.current);
     };
   }, [gl, invalidate, onFailure]);
 
   useFrame(() => {
+    const now = performance.now();
+    const completion = gate.poll(now);
+    if (completion.state === 'pending') {
+      invalidate();
+      return;
+    }
+    if (completion.state === 'failed') {
+      onFailure();
+      return;
+    }
+    if (completion.state === 'complete') {
+      const evidence = window.__SPATIAL_LAB__;
+      if (evidence && submitted.current) {
+        evidence.calls = gl.info.render.calls;
+        evidence.triangles = gl.info.render.triangles;
+        evidence.width = gl.domElement.width;
+        evidence.height = gl.domElement.height;
+        evidence.dpr = gl.getPixelRatio();
+        evidence.quality = quality;
+        evidence.progress = submitted.current.progress;
+        evidence.camera = submitted.current.camera;
+        const interval = now - previousCompletion.current;
+        if (previousCompletion.current && now - lastInput.current < 1000 && interval <= 1000) {
+          if (evidence.frames.length < 2400) evidence.frames.push(interval);
+          const next = observeFrame(qualityState.current, interval);
+          qualityState.current = next;
+          if (next.quality !== quality) setQuality(next.quality);
+        }
+      }
+      previousCompletion.current = now;
+      if (!ready.current) {
+        ready.current = true;
+        introStart.current = now;
+        window.__SPATIAL_LAB__ = {
+          quality,
+          width: gl.domElement.width,
+          height: gl.domElement.height,
+          dpr: gl.getPixelRatio(),
+          calls: gl.info.render.calls,
+          triangles: gl.info.render.triangles,
+          frames: [],
+          renderer: gl.getContext().getParameter(gl.getContext().RENDERER) as string,
+          readyMs: now,
+          progress: submitted.current?.progress ?? progress.current,
+          camera: submitted.current?.camera ?? camera.position.toArray(),
+        };
+        onReady();
+      }
+    }
+    if (document.hidden) return;
     const portrait = size.width / size.height < 1.05;
     const shot = sampleShot(progress.current, portrait);
+    const reveal = introStart.current === null ? 0 : smooth((now - introStart.current) / 1100);
+    const signature = [
+      progress.current,
+      lab.roughness,
+      lab.rotation,
+      lab.light,
+      size.width,
+      size.height,
+      gl.domElement.width,
+      gl.domElement.height,
+      quality,
+      reveal,
+    ].join('|');
+    if (signature === lastSignature.current) {
+      if (reveal < 1) invalidate();
+      return;
+    }
     camera.position.set(...shot.position);
     look.set(
       shot.target[0] - (portrait ? 0 : 1.05),
@@ -137,60 +206,24 @@ function World({ progress, lab, onReady, onFailure, onQuality }: Props) {
       shot.target[2],
     );
     camera.lookAt(look);
-    const now = performance.now();
-    const reveal = introStart.current === null ? 0 : smooth((now - introStart.current) / 1100);
     gl.toneMappingExposure = shot.exposure * (0.55 + reveal * 0.45);
-    if (reveal < 1 && !document.hidden) invalidate();
     if (sculpture.current) {
       sculpture.current.rotation.set(...shot.rotation);
       sculpture.current.rotation.y += MathUtils.degToRad(lab.rotation);
     }
-    const interval = now - previousFrame.current;
-    const wasContinuous = continuing.current;
-    continuing.current = !document.hidden && now - lastInput.current < 140;
-    if (continuing.current) invalidate();
-    previousFrame.current = now;
-    const evidence = window.__SPATIAL_LAB__;
-    if (evidence) {
-      evidence.calls = gl.info.render.calls;
-      evidence.triangles = gl.info.render.triangles;
-      evidence.width = gl.domElement.width;
-      evidence.height = gl.domElement.height;
-      evidence.dpr = gl.getPixelRatio();
-      evidence.quality = quality;
-      evidence.progress = progress.current;
-      evidence.camera = camera.position.toArray();
-      if (wasContinuous && interval > 0 && interval <= 1000 && evidence.frames.length < 2400)
-        evidence.frames.push(interval);
+    gl.render(scene, camera);
+    lastSignature.current = signature;
+    submitted.current = {
+      progress: progress.current,
+      camera: camera.position.toArray(),
+      signature,
+    };
+    if (!gate.submit(performance.now())) {
+      onFailure();
+      return;
     }
-    if (wasContinuous && interval > 0 && interval <= 1000) {
-      const next = observeFrame(qualityState.current, interval);
-      qualityState.current = next;
-      if (next.quality !== quality) setQuality(next.quality);
-    }
-    if (!ready.current) {
-      ready.current = true;
-      window.__SPATIAL_LAB__ = {
-        quality,
-        width: gl.domElement.width,
-        height: gl.domElement.height,
-        dpr: gl.getPixelRatio(),
-        calls: 0,
-        triangles: 0,
-        frames: [],
-        renderer: gl.getContext().getParameter(gl.getContext().RENDERER) as string,
-        readyMs: performance.now(),
-        progress: progress.current,
-        camera: camera.position.toArray(),
-      };
-      readyFrame.current = requestAnimationFrame(() => {
-        introStart.current = performance.now();
-        if (window.__SPATIAL_LAB__) window.__SPATIAL_LAB__.readyMs = performance.now();
-        onReady();
-        invalidate();
-      });
-    }
-  });
+    invalidate(); // Poll until completion, then sleep unless the pose or material changed.
+  }, 1); // Own the single main render pass so a GPU fence follows the actual draw.
 
   return (
     <>

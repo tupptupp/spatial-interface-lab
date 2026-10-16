@@ -11,14 +11,20 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 await page.goto(baseURL);
 await page.waitForSelector('[data-state="ready"]', { timeout: 45000 });
+await page.waitForFunction(() => performance.now() - window.__SPATIAL_LAB__.readyMs >= 1200);
 await page.screenshot({ path: 'docs/screenshots/desktop-reveal.png' });
+await page.locator('canvas').screenshot({ path: 'docs/screenshots/desktop-canvas.png' });
 await page.evaluate(() =>
   document.getElementById('material-lab').scrollIntoView({ behavior: 'instant' }),
 );
 await page.screenshot({ path: 'docs/screenshots/desktop-lab.png' });
 await page.setViewportSize({ width: 390, height: 844 });
 await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+await page.waitForFunction(
+  () => Math.abs(window.__SPATIAL_LAB__.width - innerWidth * window.__SPATIAL_LAB__.dpr) < 2,
+);
 await page.screenshot({ path: 'docs/screenshots/mobile-reveal.png' });
+await page.locator('canvas').screenshot({ path: 'docs/screenshots/mobile-canvas.png' });
 // Active requestAnimationFrame scroll workload. Frame intervals are end-to-end CPU/browser scheduling, not GPU queries.
 await page.setViewportSize({ width: 1440, height: 1000 });
 await page.evaluate(async () => {
