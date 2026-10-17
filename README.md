@@ -76,6 +76,10 @@ The owner supplied the concept, brief, constraints and portfolio goals. Implemen
 
 Geometry, illustrations and page styling were created for this project. Dependencies retain their respective licenses. No commercial studio code, shaders, artwork, textures or fonts, and no private Formodo assets, are included. No outbound analytics or application data collection is implemented. A distribution license for the original project has not been selected by the owner.
 
+## Sculpture art-direction exploration
+
+On `feature/sculpture-art-direction` there is a development-only comparison of three new sculpture concepts. It lives at `explore.html` under `npm run dev` and is not included in the production build. Rendered frames, the audit and the recommendation are in [docs/concepts](docs/concepts/README.md). The production experience above is unchanged until a direction is approved.
+
 ## Release boundary
 
 Development belongs on `feature/chrome-sculpture`. `main` contains only the minimal working foundation. Do not merge or promote to production without explicit owner approval. The feature build actively rejects `VERCEL_ENV=production`. The separate Vercel project exists, but GitHub linking and source upload were denied by integration/workspace authorization; [handoff](docs/handoff.md) describes them.
