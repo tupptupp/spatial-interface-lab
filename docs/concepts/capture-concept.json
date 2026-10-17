@@ -1,0 +1,103 @@
+{
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "browser": "141.0.7390.37",
+  "errors": [],
+  "frames": [
+    {
+      "name": "monolith-hero",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "monolith-detail",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=detail&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "monolith-spatial",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=spatial&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-hero",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-detail",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=detail&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-spatial",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=spatial&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-hero",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-detail",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=detail&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-spatial",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=spatial&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "monolith-hero-mobile",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "interlocked-hero-mobile",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tension-hero-mobile",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=hero&rig=concept&fidelity=high&ui=0",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ]
+}

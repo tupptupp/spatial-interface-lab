@@ -1,0 +1,79 @@
+{
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "browser": "141.0.7390.37",
+  "errors": [],
+  "frames": [
+    {
+      "name": "monolith-hero-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=hero&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "monolith-detail-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=detail&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "monolith-spatial-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=monolith&view=spatial&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-hero-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=hero&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-detail-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=detail&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "interlocked-spatial-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=interlocked&view=spatial&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-hero-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=hero&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-detail-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=detail&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    },
+    {
+      "name": "tension-spatial-baseline",
+      "url": "http://127.0.0.1:5173/explore.html?concept=tension&view=spatial&rig=baseline&fidelity=high&ui=0",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      }
+    }
+  ]
+}
