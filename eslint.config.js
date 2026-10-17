@@ -6,7 +6,7 @@ export default tseslint.config(
   { ignores: ['dist/**', 'playwright-report/**', 'test-results/**', 'node_modules/**'] },
   js.configs.recommended,
   {
-    files: ['scripts/capture.mjs'],
+    files: ['scripts/capture.mjs', 'scripts/capture-concepts.mjs'],
     languageOptions: {
       globals: {
         window: 'readonly',
@@ -21,7 +21,7 @@ export default tseslint.config(
   },
   {
     files: ['scripts/**/*.mjs'],
-    languageOptions: { globals: { process: 'readonly', Buffer: 'readonly' } },
+    languageOptions: { globals: { process: 'readonly', Buffer: 'readonly', console: 'readonly' } },
   },
   ...tseslint.configs.recommended,
   {

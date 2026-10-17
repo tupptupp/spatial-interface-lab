@@ -1,0 +1,116 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b0b0b;
+  color: #e7e6e1;
+}
+body {
+  margin: 0;
+}
+.explore-stage {
+  position: fixed;
+  inset: 0;
+}
+.explore-panel {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 18px 18px 14px;
+  background: rgb(14 14 14 / 82%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.explore-kicker,
+.explore-keys,
+legend,
+.explore-diagnostics {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #a5a39b;
+}
+.explore-panel h1 {
+  margin: 6px 0 6px;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.explore-panel h1 span {
+  color: #c7d6a3;
+}
+.explore-intent {
+  margin: 0 0 12px;
+  color: #c9c7bf;
+}
+fieldset {
+  border: 0;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+legend {
+  margin-bottom: 6px;
+}
+.explore-panel button {
+  min-height: 32px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 22%);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.explore-panel button[aria-pressed='true'] {
+  background: #e7e6e1;
+  color: #0b0b0b;
+}
+.explore-panel button:focus-visible {
+  outline: 2px solid #c7d6a3;
+  outline-offset: 2px;
+}
+.explore-panel small {
+  opacity: 0.6;
+}
+.explore-rig {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-left: 2px solid #6d6c66;
+  color: #c9c7bf;
+}
+.explore-rig.is-custom {
+  border-color: #e0b35a;
+}
+.explore-diagnostics {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 0 0 10px;
+  text-transform: none;
+}
+.explore-diagnostics dd {
+  margin: 0;
+  color: #e7e6e1;
+}
+.explore-renderer {
+  overflow-wrap: anywhere;
+}
+.explore-keys {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .explore-panel {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    max-height: 46vh;
+  }
+}
