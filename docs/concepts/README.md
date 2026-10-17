@@ -1,5 +1,7 @@
 # Sculpture art direction — Phase 01 concept study
 
+**Phase 02:** the owner selected Concept B. Its visual refinement, **B′ · Eclipse**, is in [refined/](refined/README.md). The frames below are the Phase 01 record, captured at `c251d48`.
+
 **Branch:** `feature/sculpture-art-direction` (from `feature/chrome-sculpture` @ `8f8841c`). Development-only exploration. The production experience, its tests and its fallback are unchanged.
 
 All frames below are real WebGL captures from `explore.html`, produced by `scripts/capture-concepts.mjs` in **headless Chromium 141 on SwiftShader (CPU, Vulkan/ANGLE)**, 1600 × 1000 at DPR 1 (mobile 390 × 844 at DPR 2). SwiftShader is a conformant rasterizer, so geometry, reflections and tone mapping are representative. It says nothing about GPU frame time, and real-GPU colour and precision were not inspected.
