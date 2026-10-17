@@ -8,6 +8,15 @@ import { cyclorama } from '../src/sculpture/cyclorama';
 import { CONCEPTS, conceptById } from '../src/sculpture/concepts';
 import { GAP, lensMesh, slottedWall } from '../src/sculpture/concepts/interlocked';
 import { latheField } from '../src/sculpture/lathe';
+import {
+  GROUND_LINE,
+  REFINED_GAP,
+  notchedStele,
+  refined,
+  refinedLeafMesh,
+  refinedLensMesh,
+} from '../src/sculpture/concepts/refined';
+import { frameFromAxis } from '../src/sculpture/shapes';
 import { thickPlate } from '../src/sculpture/plate';
 import { readExploreState, writeExploreState } from '../src/explore/state';
 
@@ -129,10 +138,12 @@ describe('plate sweep', () => {
 });
 
 describe('sculpture concepts', () => {
-  it('defines three distinct concepts with three distinct camera presets each', () => {
-    expect(CONCEPTS.map((c) => c.letter)).toEqual(['A', 'B', 'C']);
+  it('defines the three concepts plus the refined B, each with three distinct camera presets', () => {
+    // B′ (refined Concept B) was added in phase 02; A, B and C stay for comparison.
+    expect(CONCEPTS.map((c) => c.letter)).toEqual(['A', 'B', 'B′', 'C']);
     for (const concept of CONCEPTS) {
-      const views = Object.values(concept.views);
+      const { hero, detail, spatial } = concept.views;
+      const views = [hero, detail, spatial];
       expect(new Set(views.map((v) => v.fov)).size).toBe(3);
       for (const view of views) {
         expect(view.fov).toBeGreaterThanOrEqual(12);
@@ -199,6 +210,55 @@ describe('structural integrity', () => {
       const part = concept.parts[0]!;
       expect(components(part.build('balanced')), `${concept.name}: ${part.name}`).toBe(1);
     }
+  });
+});
+
+describe('refined Concept B (B′)', () => {
+  const each = (mesh: MeshData, fn: (x: number, y: number, z: number) => void) => {
+    for (let v = 0; v < mesh.positions.length / 3; v++)
+      fn(mesh.positions[v * 3]!, mesh.positions[v * 3 + 1]!, mesh.positions[v * 3 + 2]!);
+  };
+  it('keeps the disc clear of its slot by the authored gap', () => {
+    let closest = Infinity;
+    each(
+      refinedLensMesh('balanced'),
+      (x, y, z) => (closest = Math.min(closest, notchedStele(x, y, z))),
+    );
+    // The 0.06 slot fillet may tighten the clearance slightly; it must never close it.
+    expect(closest).toBeGreaterThan(REFINED_GAP * 0.6);
+  });
+  it('keeps the slotted stele one connected body and the disc above the floor', () => {
+    expect(components(refined.parts[0]!.build('balanced'))).toBe(1);
+    let lowest = Infinity;
+    each(refinedLensMesh('balanced'), (_x, y) => (lowest = Math.min(lowest, y)));
+    expect(lowest).toBeGreaterThan(1);
+  });
+  it('lays the ground line flat on the floor, well clear of the stele', () => {
+    const blade = refinedLeafMesh('balanced');
+    let low = Infinity,
+      high = -Infinity,
+      clearance = Infinity;
+    each(blade, (x, y, z) => {
+      low = Math.min(low, y);
+      high = Math.max(high, y);
+      clearance = Math.min(clearance, notchedStele(x, y, z));
+    });
+    expect(low).toBeCloseTo(0, 6);
+    expect(high).toBeCloseTo(GROUND_LINE.thickness, 6);
+    expect(clearance).toBeGreaterThan(0.2);
+  });
+  it('defines an alternative hero and builds an orthonormal disc frame', () => {
+    expect(refined.views.alt).toBeDefined();
+    const { x, y, z } = frameFromAxis([1, 0.08, 0.14]);
+    const d = (a: readonly number[], b: readonly number[]) =>
+      a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+    for (const [a, b] of [
+      [x, y],
+      [y, z],
+      [z, x],
+    ] as const)
+      expect(d(a, b)).toBeCloseTo(0, 9);
+    for (const v of [x, y, z]) expect(d(v, v)).toBeCloseTo(1, 9);
   });
 });
 

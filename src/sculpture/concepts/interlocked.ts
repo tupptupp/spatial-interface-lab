@@ -2,6 +2,7 @@ import { rot, smax } from '../sdf';
 import { SURROUND } from '../rigs';
 import { latheField, transformMesh } from '../lathe';
 import { thickPlate } from '../plate';
+import { roundedExtrusion, vesicaLens } from '../shapes';
 import { surfaceNets } from '../surfaceNets';
 import type { ConceptDefinition, Fidelity } from '../types';
 
@@ -11,14 +12,6 @@ import type { ConceptDefinition, Fidelity } from '../types';
  * the slot is the lens field offset by GAP, so the gap is uniform by construction.
  */
 export const GAP = 0.05;
-
-/** Extrude a 2D field `d2` to half-thickness `half` with fully rounded edges. */
-function roundedExtrusion(d2: number, across: number, half: number) {
-  // Erode the outline by the edge radius, then sweep a sphere of that radius: exact round edges.
-  const wx = d2 + half,
-    wy = Math.abs(across);
-  return Math.hypot(Math.max(wx, 0), Math.max(wy, 0)) + Math.min(Math.max(wx, wy), 0) - half;
-}
 
 const WALL_R = 2.6;
 export function wallShape(x: number, y: number, z: number) {
@@ -38,22 +31,9 @@ export function wallShape(x: number, y: number, z: number) {
 
 const LENS_CENTRE = [0.0, 1.42, 0] as const;
 const LENS = { radius: 0.84, sag: 0.15 };
-const LENS_R = (LENS.radius ** 2 + LENS.sag ** 2) / (2 * LENS.sag);
-/** Exact distance to the lens profile in (radius, height): a vesica (intersection of two
- * discs centred on the axis), inset then offset by RIM so the knife edge becomes a true
- * round of radius RIM. Exactness matters: the stele's window is this field offset by GAP,
- * and a non-Euclidean lens field would groove the wall far beyond the lens rim.
- */
 const RIM = 0.035;
-export function lensProfile(r: number, y: number) {
-  const radius = LENS_R - RIM,
-    c = LENS_R - LENS.sag;
-  const b = Math.sqrt(radius * radius - c * c);
-  const px = Math.abs(y),
-    py = Math.abs(r);
-  const d = (py - b) * c > px * b ? Math.hypot(px, py - b) : Math.hypot(px + c, py) - radius;
-  return d - RIM;
-}
+/** Exact lens distance; the stele's window is this field offset by GAP. */
+export const lensProfile = vesicaLens(LENS.radius, LENS.sag, RIM);
 
 // The lens axis is tipped 34° about z and turned 18° about y: it crosses the wall obliquely.
 const TURN = 0.31,

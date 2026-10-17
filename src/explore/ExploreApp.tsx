@@ -8,11 +8,14 @@ import type { ExploreState } from './state';
 import './explore.css';
 
 const Studio = lazy(() => import('./Studio'));
-const VIEWS: readonly { id: ViewId; label: string; lens: string }[] = [
-  { id: 'hero', label: 'Hero', lens: '≈50mm' },
-  { id: 'detail', label: 'Detail', lens: '≈90mm' },
-  { id: 'spatial', label: 'Spatial', lens: '≈35mm' },
+const VIEWS: readonly { id: ViewId; label: string }[] = [
+  { id: 'hero', label: 'Hero' },
+  { id: 'alt', label: 'Alt hero' },
+  { id: 'detail', label: 'Detail' },
+  { id: 'spatial', label: 'Spatial' },
 ];
+/** Full-frame (24mm sensor height) focal length equivalent of a vertical field of view. */
+const lens = (fov: number) => `≈${Math.round(12 / Math.tan((fov * Math.PI) / 360))}mm`;
 
 export default function ExploreApp() {
   const [state, setState] = useState<ExploreState>(() => readExploreState(window.location.search));
@@ -37,7 +40,7 @@ export default function ExploreApp() {
         '2': 'interlocked',
         '3': 'tension',
       };
-      const views: Record<string, ViewId> = { h: 'hero', d: 'detail', s: 'spatial' };
+      const views: Record<string, ViewId> = { h: 'hero', a: 'alt', d: 'detail', s: 'spatial' };
       if (concepts[event.key]) update({ concept: concepts[event.key] });
       else if (views[event.key]) update({ view: views[event.key] });
       else if (event.key === 'r') setResetToken((t) => t + 1);
@@ -86,13 +89,13 @@ export default function ExploreApp() {
           </fieldset>
           <fieldset>
             <legend>Camera</legend>
-            {VIEWS.map((v) => (
+            {VIEWS.filter((v) => v.id !== 'alt' || concept.views.alt).map((v) => (
               <button
                 key={v.id}
                 aria-pressed={v.id === state.view}
                 onClick={() => update({ view: v.id })}
               >
-                {v.label} <small>{v.lens}</small>
+                {v.label} <small>{lens(concept.views[v.id]?.fov ?? concept.views.hero.fov)}</small>
               </button>
             ))}
             <button onClick={() => setResetToken((t) => t + 1)}>Reset camera</button>
@@ -152,7 +155,7 @@ export default function ExploreApp() {
             </dl>
           ) : null}
           <p className="explore-keys">
-            Keys: 1 2 3 concept · H D S view · L lighting · R reset · drag to orbit
+            Keys: 1–4 concept · H A D S view · L lighting · R reset · drag to orbit
           </p>
         </aside>
       ) : null}

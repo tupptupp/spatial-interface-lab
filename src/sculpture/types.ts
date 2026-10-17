@@ -3,8 +3,9 @@ import type { MeshData } from './surfaceNets';
 export type Vec3 = readonly [number, number, number];
 export type Fidelity = 'high' | 'balanced';
 export type MaterialKey = 'chrome' | 'satin' | 'smoked';
-export type ViewId = 'hero' | 'detail' | 'spatial';
-export type ConceptId = 'monolith' | 'interlocked' | 'tension';
+/** alt is an optional second hero composition; not every concept defines one. */
+export type ViewId = 'hero' | 'detail' | 'spatial' | 'alt';
+export type ConceptId = 'monolith' | 'interlocked' | 'refined' | 'tension';
 
 export type Part = {
   name: string;
@@ -29,8 +30,9 @@ export type Card = {
   size: readonly [number, number];
   intensity: number;
   color: string;
-  /** soft: broad feathered box. strip: narrow line source with a short falloff. */
-  kind: 'soft' | 'strip';
+  /** soft: broad feathered box. strip: narrow line source with a short falloff.
+   * window: a glazed opening divided by dark mullions, read as architecture in reflections. */
+  kind: 'soft' | 'strip' | 'window';
 };
 
 export type LightRig = {
@@ -46,11 +48,16 @@ export type LightRig = {
 
 export type ConceptDefinition = {
   id: ConceptId;
-  letter: 'A' | 'B' | 'C';
+  letter: string;
   name: string;
   intention: string;
   parts: readonly Part[];
-  views: Record<ViewId, CameraPreset>;
+  views: Record<Exclude<ViewId, 'alt'>, CameraPreset> & { alt?: CameraPreset };
+  /** Visible surroundings. cyclorama: seamless photographic cove. gallery: a dark room with
+   * a polished floor, a corner and a light slot, for architectural depth. */
+  stage?: 'cyclorama' | 'gallery';
+  /** Per-concept finish overrides, so refining one concept never changes another's renders. */
+  materials?: Partial<Record<MaterialKey, { color: string; roughness: number }>>;
   rig: LightRig;
   /** Point that reflection cards aim at by default. */
   centre: Vec3;

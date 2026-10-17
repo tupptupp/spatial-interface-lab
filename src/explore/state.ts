@@ -11,8 +11,8 @@ export type ExploreState = {
   env: boolean;
 };
 
-const CONCEPT_IDS: readonly ConceptId[] = ['monolith', 'interlocked', 'tension'];
-const VIEW_IDS: readonly ViewId[] = ['hero', 'detail', 'spatial'];
+const CONCEPT_IDS: readonly ConceptId[] = ['monolith', 'interlocked', 'refined', 'tension'];
+const VIEW_IDS: readonly ViewId[] = ['hero', 'alt', 'detail', 'spatial'];
 const pick = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback;
 

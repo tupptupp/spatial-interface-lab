@@ -1,5 +1,6 @@
 // Capture the sculpture concept comparison frames from the development-only explore page.
 // Usage: start `npm run dev -- --port 5173`, then `node scripts/capture-concepts.mjs`.
+// Refined Concept B: CONCEPTS=refined VIEWS=hero,alt,detail,spatial CAPTURE_DIR=docs/concepts/refined
 // EXPLORE_URL overrides the page; CHROMIUM_PATH selects a preinstalled browser binary.
 import { chromium } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -9,8 +10,9 @@ const base = process.env.EXPLORE_URL || 'http://127.0.0.1:5173/explore.html';
 const out = process.env.CAPTURE_DIR || 'docs/concepts';
 const only = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const rig = process.env.RIG || 'concept';
-const concepts = ['monolith', 'interlocked', 'tension'];
-const views = ['hero', 'detail', 'spatial'];
+// CONCEPTS / VIEWS select a subset, e.g. CONCEPTS=refined VIEWS=hero,alt,detail,spatial.
+const concepts = (process.env.CONCEPTS || 'monolith,interlocked,tension').split(',');
+const views = (process.env.VIEWS || 'hero,detail,spatial').split(',');
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({

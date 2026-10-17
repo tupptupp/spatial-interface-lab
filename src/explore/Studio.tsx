@@ -1,6 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { ContactShadows, Environment, OrbitControls } from '@react-three/drei';
+import {
+  ContactShadows,
+  Environment,
+  MeshReflectorMaterial,
+  OrbitControls,
+} from '@react-three/drei';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import {
   ACESFilmicToneMapping,
   AdditiveBlending,
@@ -64,7 +70,7 @@ function toGeometry(data: MeshData) {
 function cardTexture(kind: Card['kind']) {
   const size = 64;
   const data = new Uint8Array(size * size * 4);
-  const feather = kind === 'soft' ? 0.42 : 0.18;
+  const feather = kind === 'soft' ? 0.42 : kind === 'window' ? 0.08 : 0.3;
   for (let j = 0; j < size; j++)
     for (let i = 0; i < size; i++) {
       const u = Math.abs((i + 0.5) / size - 0.5) * 2,
@@ -74,8 +80,18 @@ function cardTexture(kind: Card['kind']) {
         return x * x * (3 - 2 * x);
       };
       // Soft boxes are brighter toward one end, like a real diffuser with an offset lamp.
-      const gradient = kind === 'soft' ? 0.7 + 0.3 * ((j + 0.5) / size) : 1;
-      const value = Math.round(255 * edge(u) * edge(v) * gradient);
+      const gradient = kind === 'strip' ? 1 : 0.7 + 0.3 * ((j + 0.5) / size);
+      // Windows: 3 × 2 panes separated by dark mullions. The mullion edges are smoothstepped
+      // over a few texels: hard edges stair-step once a concave fillet magnifies the cube map.
+      const fx = (i + 0.5) / size,
+        fy = (j + 0.5) / size;
+      const bar = (t: number, panes: number, half: number) => {
+        const d = Math.abs(((t * panes) % 1) - 0.5);
+        const x = Math.min(1, Math.max(0, (d - half + 0.04) / 0.08));
+        return x * x * (3 - 2 * x);
+      };
+      const glass = kind === 'window' ? (1 - bar(fx, 3, 0.44)) * (1 - bar(fy, 2, 0.45)) : 1;
+      const value = Math.round(255 * edge(u) * edge(v) * gradient * glass);
       data.set([value, value, value, 255], (j * size + i) * 4);
     }
   const texture = new DataTexture(data, size, size, RGBAFormat, UnsignedByteType);
@@ -191,11 +207,13 @@ function SculptureParts({
   return (
     <group>
       {built.parts.map(({ part, geometry }) => (
-        <mesh key={part.name} geometry={geometry} castShadow receiveShadow name={part.name}>
+        // Parts cast shadows onto the room but do not receive them: on near-mirror metal the
+        // key light's direct term is a tiny specular, and self-shadowing only adds faceted
+        // shadow-terminator artifacts that follow the tessellation.
+        <mesh key={part.name} geometry={geometry} castShadow name={part.name}>
           <meshStandardMaterial
-            color={MATERIALS[part.material].color}
+            {...(concept.materials?.[part.material] ?? MATERIALS[part.material])}
             metalness={1}
-            roughness={MATERIALS[part.material].roughness}
           />
         </mesh>
       ))}
@@ -210,6 +228,107 @@ function Backdrop() {
     <mesh geometry={geometry} receiveShadow>
       <meshStandardMaterial color="#4a4744" roughness={0.7} metalness={0} envMapIntensity={0.1} />
     </mesh>
+  );
+}
+
+/** A dark gallery: polished floor, a back wall and a left wall, each with a full-height light
+ * slot, and a right wall closing the corner. Each slot is a real rect-area light and also a
+ * strip card in the reflection rig, so reflections and room agree. The back slot backlights
+ * the frontal view; the side slot sits in the hero frame's left third. */
+const SLOT = { width: 0.36, height: 7.2 };
+// The right wall stands far out (x = 18) so portrait frames, which dolly the hero camera
+// back by up to ~2.5×, stay inside the room instead of looking through the wall.
+export const GALLERY = { backZ: -5.8, leftX: -7, rightX: 18, backSlotX: 0.8, sideSlotZ: 0 };
+RectAreaLightUniformsLib.init();
+
+/** A wall along its own local x axis (length `span` around `centre`), with a slot at `slotAt`. */
+function SlottedWall({
+  span,
+  slotAt,
+  position,
+  rotationY,
+}: {
+  span: readonly [number, number];
+  slotAt: number;
+  position: [number, number, number];
+  rotationY: number;
+}) {
+  const wall = { color: '#34322f', roughness: 0.88, metalness: 0, envMapIntensity: 0.25 };
+  const left = slotAt - SLOT.width / 2,
+    right = slotAt + SLOT.width / 2;
+  const glow = useMemo(() => new Color('#fff1dc').multiplyScalar(3), []);
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <mesh position={[(span[0] + left) / 2, 5, 0]} receiveShadow>
+        <boxGeometry args={[left - span[0], 10, 0.3]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[(right + span[1]) / 2, 5, 0]} receiveShadow>
+        <boxGeometry args={[span[1] - right, 10, 0.3]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      <mesh position={[slotAt, (SLOT.height + 10) / 2, 0]}>
+        <boxGeometry args={[SLOT.width, 10 - SLOT.height, 0.3]} />
+        <meshStandardMaterial {...wall} />
+      </mesh>
+      {/* The glowing slot itself, recessed behind the wall face. */}
+      <mesh position={[slotAt, SLOT.height / 2, -0.2]}>
+        <planeGeometry args={[SLOT.width, SLOT.height]} />
+        <meshBasicMaterial color={glow} toneMapped={false} />
+      </mesh>
+      {/* Rect area lights emit along their local -z; turn it to face into the room (+z). */}
+      <rectAreaLight
+        position={[slotAt, SLOT.height / 2, 0.16]}
+        rotation={[0, Math.PI, 0]}
+        width={SLOT.width}
+        height={SLOT.height}
+        intensity={14}
+        color="#fff1dc"
+      />
+    </group>
+  );
+}
+
+function GalleryStage({ fidelity }: { fidelity: Fidelity }) {
+  const plain = { color: '#34322f', roughness: 0.88, metalness: 0, envMapIntensity: 0.25 };
+  return (
+    <group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[40, 40]} />
+        <MeshReflectorMaterial
+          resolution={fidelity === 'high' ? 1024 : 512}
+          blur={[320, 90]}
+          mixBlur={1}
+          mixStrength={1.6}
+          mixContrast={1}
+          depthScale={1.1}
+          minDepthThreshold={0.35}
+          maxDepthThreshold={1.3}
+          roughness={0.82}
+          metalness={0.35}
+          color="#1b1a19"
+          mirror={0}
+        />
+      </mesh>
+      <SlottedWall
+        span={[GALLERY.leftX, GALLERY.rightX]}
+        slotAt={GALLERY.backSlotX}
+        position={[0, 0, GALLERY.backZ]}
+        rotationY={0}
+      />
+      {/* Left wall: local x runs along world -z (front at -6, back wall at +5.65); its face
+          (local +z) looks toward +x, into the room. */}
+      <SlottedWall
+        span={[-6, -GALLERY.backZ - 0.15]}
+        slotAt={-GALLERY.sideSlotZ}
+        position={[GALLERY.leftX, 0, 0]}
+        rotationY={Math.PI / 2}
+      />
+      <mesh position={[GALLERY.rightX, 5, 3]} receiveShadow>
+        <boxGeometry args={[0.3, 10, 17.6]} />
+        <meshStandardMaterial {...plain} />
+      </mesh>
+    </group>
   );
 }
 
@@ -251,7 +370,7 @@ function CameraRig({
   const { camera, size, invalidate } = useThree();
   const controls = useThree((state) => state.controls) as Controls | null;
   useLayoutEffect(() => {
-    const preset = frameView(concept.views[view], size.width / size.height);
+    const preset = frameView(concept.views[view] ?? concept.views.hero, size.width / size.height);
     const perspective = camera as PerspectiveCamera;
     perspective.position.set(...preset.position);
     perspective.fov = preset.fov;
@@ -359,7 +478,11 @@ export default function Studio({
       />
       <KeyLight rig={rig} centre={concept.centre} />
       <SculptureParts concept={concept} fidelity={fidelity} onBuilt={onBuilt} />
-      {showEnvironment ? null : <Backdrop />}
+      {showEnvironment ? null : concept.stage === 'gallery' ? (
+        <GalleryStage fidelity={fidelity} />
+      ) : (
+        <Backdrop />
+      )}
       <ContactShadows
         key={concept.id}
         position={[0, 0.002, 0]}
